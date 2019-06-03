@@ -1220,9 +1220,9 @@
 	}else{
 		logError("Dependency MicroPlugin is missing",
 			{explanation:
-				"Make sure you either: (1) are using the \"standalone\" "+
-				"version of Selectize, or (2) require MicroPlugin before you "+
-				"load Selectize."}
+					"Make sure you either: (1) are using the \"standalone\" "+
+					"version of Selectize, or (2) require MicroPlugin before you "+
+					"load Selectize."}
 		);
 	}
 	
@@ -1261,7 +1261,11 @@
 	
 			$wrapper          = $('<div>').addClass(settings.wrapperClass).addClass(classes).addClass(inputMode);
 			$control          = $('<div>').addClass(settings.inputClass).addClass('items').appendTo($wrapper);
-			$control_input    = $('<input type="text" autocomplete="off" />').appendTo($control).attr('tabindex', $input.is(':disabled') ? '-1' : self.tabIndex);
+			if ($input.is('textarea')) {
+				$control_input    = $('<textarea autocomplete="off" row="1" style="width: 100%"></textarea>').appendTo($control).attr('tabindex', $input.is(':disabled') ? '-1' : self.tabIndex);
+			} else {
+				$control_input    = $('<input type="text" autocomplete="off" />').appendTo($control).attr('tabindex', $input.is(':disabled') ? '-1' : self.tabIndex);
+			}
 			$dropdown_parent  = $(settings.dropdownParent || $wrapper);
 			$dropdown         = $('<div>').addClass(settings.dropdownClass).addClass(inputMode).hide().appendTo($dropdown_parent);
 			$dropdown_content = $('<div>').addClass(settings.dropdownContentClass).appendTo($dropdown);
@@ -1295,8 +1299,20 @@
 	
 			// if splitOn was not passed in, construct it from the delimiter to allow pasting universally
 			if (!self.settings.splitOn && self.settings.delimiter) {
-				var delimiterEscaped = self.settings.delimiter.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-				self.settings.splitOn = new RegExp('\\s*' + delimiterEscaped + '+\\s*');
+				var delimiterEscaped;
+				if (Array.isArray(self.settings.delimiter)) {
+					self.settings.splitOn = [];
+	
+					self.settings.delimiter.map(function (delimiter) {
+						delimiterEscaped = delimiter.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+						self.settings.splitOn.push(new RegExp('\\s*' + delimiterEscaped + '+\\s*'));
+	
+						return delimiterEscaped;
+					})
+				} else {
+					delimiterEscaped = self.settings.delimiter.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+					self.settings.splitOn = new RegExp('\\s*' + delimiterEscaped + '+\\s*');
+				}
 			}
 	
 			if ($input.attr('autocorrect')) {
@@ -1306,7 +1322,10 @@
 			if ($input.attr('autocapitalize')) {
 				$control_input.attr('autocapitalize', $input.attr('autocapitalize'));
 			}
-			$control_input[0].type = $input[0].type;
+	
+			if (!$input.is('textarea')) {
+				$control_input[0].type = $input[0].type;
+			}
 	
 			self.$wrapper          = $wrapper;
 			self.$control          = $control;
@@ -1490,8 +1509,8 @@
 	
 			// necessary for mobile webkit devices (manual focus triggering
 			// is ignored unless invoked within a click event)
-	    // also necessary to reopen a dropdown that has been closed by
-	    // closeAfterSelect
+			// also necessary to reopen a dropdown that has been closed by
+			// closeAfterSelect
 			if (!self.isFocused || !self.isOpen) {
 				self.focus();
 				e.preventDefault();
@@ -1563,9 +1582,21 @@
 				// Wait for pasted text to be recognized in value
 				setTimeout(function() {
 					var pastedText = self.$control_input.val();
-					if(!pastedText.match(self.settings.splitOn)){ return }
+					var splitRegexp = self.settings.splitOn;
 	
-					var splitInput = $.trim(pastedText).split(self.settings.splitOn);
+					if ($.isArray(self.settings.splitOn)) {
+						var splitFlag = false;
+						self.settings.splitOn.forEach(function (splitCharacterRegexp) {
+							if (!splitFlag && pastedText.match(splitCharacterRegexp)) {
+								splitFlag = true;
+								splitRegexp = splitCharacterRegexp;
+							}
+						})
+					} else if (!pastedText.match(splitRegexp)) {
+						return;
+					}
+	
+					var splitInput = $.trim(pastedText).split(splitRegexp);
 					for (var i = 0, n = splitInput.length; i < n; i++) {
 						self.createItem(splitInput[i]);
 					}
@@ -1582,7 +1613,16 @@
 		onKeyPress: function(e) {
 			if (this.isLocked) return e && e.preventDefault();
 			var character = String.fromCharCode(e.keyCode || e.which);
-			if (this.settings.create && this.settings.mode === 'multi' && character === this.settings.delimiter) {
+	
+			var checkPressDelimiter = function (delimiter, character) {
+				if ($.isArray(delimiter)) {
+					return delimiter.indexOf(character) !== -1;
+				} else {
+					return character === delimiter;
+				}
+			}
+	
+			if (this.settings.create && this.settings.mode === 'multi' && checkPressDelimiter(this.settings.delimiter, character)) {
 				this.createItem();
 				e.preventDefault();
 				return false;
@@ -3040,6 +3080,7 @@
 			self.showInput();
 			self.positionDropdown();
 			self.refreshOptions(true);
+			self.focus();
 	
 			// select previous option
 			if (option_select) {

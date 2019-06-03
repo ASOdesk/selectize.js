@@ -120,7 +120,8 @@
 }
 .selectize-dropdown,
 .selectize-input,
-.selectize-input input {
+.selectize-input input,
+.selectize-input textarea {
   color: #303030;
   font-family: inherit;
   font-size: 13px;
@@ -195,8 +196,10 @@
   background: #ffffff;
   border: 0 solid #ffffff;
 }
-.selectize-input > input {
+.selectize-input > input,
+.selectize-input textarea {
   display: inline-block !important;
+  vertical-align: middle !important;
   padding: 0 !important;
   min-height: 0 !important;
   max-height: none !important;
@@ -210,11 +213,17 @@
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
 }
-.selectize-input > input::-ms-clear {
+.selectize-input > input::-ms-clear,
+.selectize-input textarea::-ms-clear {
   display: none;
 }
-.selectize-input > input:focus {
+.selectize-input > input:focus,
+.selectize-input textarea:focus {
   outline: none !important;
+}
+.selectize-input > textarea {
+  resize: none;
+  height: 18px;
 }
 .selectize-input::after {
   content: ' ';
@@ -295,11 +304,13 @@
   -webkit-overflow-scrolling: touch;
 }
 .selectize-control.single .selectize-input,
-.selectize-control.single .selectize-input input {
+.selectize-control.single .selectize-input input,
+.selectize-control.single .selectize-input textarea {
   cursor: pointer;
 }
 .selectize-control.single .selectize-input.input-active,
-.selectize-control.single .selectize-input.input-active input {
+.selectize-control.single .selectize-input.input-active input,
+.selectize-control.single .selectize-input.input-active textarea {
   cursor: text;
 }
 .selectize-control.single .selectize-input:after {
@@ -324,7 +335,8 @@
   left: 15px;
   right: auto;
 }
-.selectize-control.rtl .selectize-input > input {
+.selectize-control.rtl .selectize-input > input,
+.selectize-control.rtl .selectize-input > textarea {
   margin: 0 4px 0 -2px !important;
 }
 .selectize-control .selectize-input.disabled {

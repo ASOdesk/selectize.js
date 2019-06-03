@@ -210,7 +210,10 @@ module.exports = function(grunt) {
 			}
 		},
 		connect: {
-			keepalive: true
+			keepalive: true,
+			options: {
+				port: 8088
+			}
 		},
 		uglify: {
 			main: {
