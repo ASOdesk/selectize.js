@@ -824,7 +824,8 @@ $.extend(Selectize.prototype, {
 		if (this.tagType === TAG_SELECT && this.$input.attr('multiple')) {
 			return this.items;
 		} else {
-			return this.items.join(this.settings.delimiter);
+		  var delimiter = $.isArray(this.settings.delimiter) ? this.settings.delimiter[0] : this.settings.delimiter;
+			return this.items.join(delimiter);
 		}
 	},
 
