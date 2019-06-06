@@ -559,6 +559,7 @@ $.extend(Selectize.prototype, {
 				if (self.isOpen && self.$activeOption) {
 					self.onOptionSelect({currentTarget: self.$activeOption});
 					e.preventDefault();
+					self.focus();
 				}
 				return;
 			case KEY_LEFT:
@@ -2049,7 +2050,7 @@ $.extend(Selectize.prototype, {
 			// siblings, due to the fact that focus cannot be restored once lost
 			// on mobile webkit devices
 			var j, n, fn, $children, $child;
-			$children = self.$control.children(':not(input)');
+			$children = self.$control.children(':not(input)') && self.$control.children(':not(textarea)');
 			for (j = 0, n = $children.length; j < n; j++) {
 				$child = $($children[j]).detach();
 				if (j <  i) {
