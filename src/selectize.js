@@ -502,6 +502,11 @@ $.extend(Selectize.prototype, {
 		}
 	},
 
+  onSubmit: function() {
+    var self = this;
+		$(self.$control_input[0]).closest('form').find('[type="submit"]').click();
+  },
+
 	/**
 	 * Triggered on <input> keydown.
 	 *
@@ -560,6 +565,10 @@ $.extend(Selectize.prototype, {
 					self.onOptionSelect({currentTarget: self.$activeOption});
 					e.preventDefault();
 					self.focus();
+				} else {
+					e.preventDefault();
+					self.trigger('keypress');
+					self.onSubmit();
 				}
 				return;
 			case KEY_LEFT:
