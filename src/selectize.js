@@ -472,8 +472,8 @@ $.extend(Selectize.prototype, {
 
 				var splitInput = $.trim(pastedText).split(splitRegexp);
 				for (var i = 0, n = splitInput.length; i < n; i++) {
-					self.isPending = (i < n - 1);
-					self.createItem(splitInput[i], false, i === n-1);
+					self.isPending = (i < n - 2);
+					self.createItem(splitInput[i], false);
 				}
         self.isPaste = false;
 			}, 0);
