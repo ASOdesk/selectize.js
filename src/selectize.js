@@ -31,6 +31,7 @@ var Selectize = function($input, settings) {
 		isShiftDown      : false,
 		isCmdDown        : false,
 		isCtrlDown       : false,
+    isPaste          : false,
 		ignoreFocus      : false,
 		ignoreBlur       : false,
 		ignoreHover      : false,
@@ -442,12 +443,12 @@ $.extend(Selectize.prototype, {
 	 */
 	onPaste: function(e) {
 		var self = this;
-
 		if (self.isFull() || self.isInputHidden || self.isLocked) {
 			e.preventDefault();
 			return;
 		}
 
+    self.isPaste = true;
 		// If a regex or string is included, this will split the pasted
 		// input and create Items for each separate value
 		if (self.settings.splitOn) {
@@ -471,8 +472,10 @@ $.extend(Selectize.prototype, {
 
 				var splitInput = $.trim(pastedText).split(splitRegexp);
 				for (var i = 0, n = splitInput.length; i < n; i++) {
-					self.createItem(splitInput[i]);
+					self.isPending = (i < n - 1);
+					self.createItem(splitInput[i], false, i === n-1);
 				}
+        self.isPaste = false;
 			}, 0);
 		}
 	},
@@ -1567,9 +1570,9 @@ $.extend(Selectize.prototype, {
 				}
 
 				// hide the menu if the maximum number of items have been selected or no options are left
-				if (!$options.length || self.isFull()) {
+				if ((!$options.length || self.isFull()) && !self.isPaste) {
 					self.close();
-				} else if (!self.isPending) {
+				} else if (!self.isPending && !self.isPaste) {
 					self.positionDropdown();
 				}
 
@@ -1637,7 +1640,7 @@ $.extend(Selectize.prototype, {
 	 */
 	createItem: function(input, triggerDropdown) {
 		var self  = this;
-		var caret = self.caretPos;
+
 		input = input || $.trim(self.$control_input.val() || '');
 
 		var callback = arguments[arguments.length - 1];
@@ -1652,7 +1655,7 @@ $.extend(Selectize.prototype, {
 			return false;
 		}
 
-		self.lock();
+    if(!self.isPaste) self.lock();
 
 		var setup = (typeof self.settings.create === 'function') ? this.settings.create : function(input) {
 			var data = {};
@@ -1662,7 +1665,7 @@ $.extend(Selectize.prototype, {
 		};
 
 		var create = once(function(data) {
-			self.unlock();
+      if(!self.isPaste) self.unlock();
 
 			if (!data || typeof data !== 'object') return callback();
 			var value = hash_key(data[self.settings.valueField]);
@@ -1670,8 +1673,7 @@ $.extend(Selectize.prototype, {
 
 			self.setTextboxValue('');
 			self.addOption(data);
-			self.setCaret(caret);
-			self.addItem(value);
+			self.addItem(value, true);
 			self.refreshOptions(triggerDropdown && self.settings.mode !== 'single');
 			callback(data);
 		});
@@ -1905,7 +1907,7 @@ $.extend(Selectize.prototype, {
 			target.insertBefore(el, target.childNodes[caret]);
 		}
 
-		this.setCaret(caret + 1);
+		this.setCaret(caret + 1)
 	},
 
 	/**

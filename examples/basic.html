@@ -21,7 +21,7 @@
 			<h1>Selectize.js</h1>
 
 			<div class="demo">
-				<h2>&lt;input type="text"&gt;</h2>
+				<h2>textarea</h2>
 				<form class="control-group">
 					<label for="input-tags">Tags:</label>
 					<textarea id="textarea" class="demo-default" value="awesome,neat"></textarea>
@@ -33,7 +33,7 @@
 						persist: false,
 						createOnBlur: true,
 						create: true,
-						delimiter: [',', '\u000A', '，', '、']
+						delimiter: ['\u000A', ',', '，', '、', '\n'],
 					});
 				</script>
 			</div>
