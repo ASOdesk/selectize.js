@@ -2800,7 +2800,7 @@
 	
 				self.setTextboxValue('');
 				self.addOption(data);
-				self.addItem(value, true);
+				self.addItem(value);
 				self.refreshOptions(triggerDropdown && self.settings.mode !== 'single');
 				callback(data);
 			});
