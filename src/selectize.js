@@ -597,6 +597,7 @@ $.extend(Selectize.prototype, {
 			case KEY_BACKSPACE:
 			case KEY_DELETE:
 				self.deleteSelection(e);
+				self.setActiveItem(null);
 				return;
 		}
 
